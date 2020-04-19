@@ -14,12 +14,11 @@ public class DIYArrayList<T> implements List<T> {
     }
 
     public DIYArrayList(int capacity) {
+        size = 0;
         if (capacity > 0) {
             elementData = new Object[capacity];
-            size = 0;
         } else if (capacity == 0) {
             elementData = EMPTY_ARRAY;
-            size = 0;
         } else {
             throw new IllegalArgumentException("Illegal Capacity: " +
                     capacity);
