@@ -16,12 +16,14 @@ public class DIYArrayList<T> implements List<T> {
     public DIYArrayList(int capacity) {
         if (capacity > 0) {
             elementData = new Object[capacity];
-            size = capacity;
+            size = 0;
         } else if (capacity == 0) {
             elementData = EMPTY_ARRAY;
             size = 0;
-        } else throw new IllegalArgumentException("Illegal Capacity: " +
-                capacity);
+        } else {
+            throw new IllegalArgumentException("Illegal Capacity: " +
+                    capacity);
+        }
     }
 
     @Override
@@ -59,8 +61,8 @@ public class DIYArrayList<T> implements List<T> {
         if (elementData.length == size) {
             extend();
         }
-
         elementData[size++] = t;
+
         return true;
     }
 
@@ -68,8 +70,7 @@ public class DIYArrayList<T> implements List<T> {
         Object[] supportArr = new Object[size << 1];
         System.arraycopy(elementData, 0, supportArr, 0, elementData.length);
 
-        elementData = new Object[size << 1];
-        System.arraycopy(supportArr, 0, elementData, 0, supportArr.length);
+        elementData = supportArr;
     }
 
     @Override
@@ -84,12 +85,12 @@ public class DIYArrayList<T> implements List<T> {
 
     @Override
     public boolean addAll(Collection<? extends T> c) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean addAll(int index, Collection<? extends T> c) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -109,10 +110,11 @@ public class DIYArrayList<T> implements List<T> {
 
     @Override
     public T get(int index) {
-        if (index < this.size)
+        if (index >= 0 && index < this.size) {
             return (T) elementData[index];
-        else
+        } else {
             throw new ArrayIndexOutOfBoundsException("The element index is out of arrays bound.");
+        }
     }
 
     @Override
@@ -159,7 +161,7 @@ public class DIYArrayList<T> implements List<T> {
     }
 
     private class DIYListIterator implements ListIterator<T> {
-        int cursor;
+        private int cursor;
 
         DIYListIterator() {
             cursor = -1;
@@ -199,16 +201,17 @@ public class DIYArrayList<T> implements List<T> {
 
         @Override
         public int nextIndex() {
-            return 0;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public int previousIndex() {
-            return 0;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public void remove() {
+            throw new UnsupportedOperationException();
         }
 
         @Override
