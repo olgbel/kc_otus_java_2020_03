@@ -17,6 +17,9 @@ public class Application {
         printArray(diyArr2);
 
         DIYArrayList<String> destArr = new DIYArrayList<>(diyArr.size());
+        for (int i = 0; i < diyArr.size(); i++) {
+            destArr.add(String.valueOf(i + 100));
+        }
         Collections.copy(destArr, diyArr);
         printArray(destArr);
 
