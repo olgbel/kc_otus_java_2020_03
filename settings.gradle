@@ -1,4 +1,5 @@
 rootProject.name = 'kc_otus_java_2020_03'
 include 'hw01-gradle'
 include 'hw02-collections'
+include 'hw03-annotations'
 
