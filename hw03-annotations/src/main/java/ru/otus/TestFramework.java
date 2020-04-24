@@ -44,30 +44,33 @@ public class TestFramework {
 
     private void runTriple(Method testMethod) {
         Object testClassInstance = getInstance();
-
         try {
-            for (Method beforeMethod : beforeMethods) {
-                beforeMethod.invoke(testClassInstance);
-            }
-
+            runBeforeMethods(testClassInstance);
             testMethod.invoke(testClassInstance);
-
-            for (Method afterMethod : afterMethods) {
-                afterMethod.invoke(testClassInstance);
-            }
+            runAfterMethods(testClassInstance);
 
             report.putRecord(testMethod, TestResult.SUCCESS);
         } catch (InvocationTargetException | IllegalAccessException e) {
             System.out.println("exception " + e.getClass());
             report.putRecord(testMethod, TestResult.FAILED);
-
-            for (Method afterMethod : afterMethods) {
-                try {
-                    afterMethod.invoke(testClassInstance);
-                } catch (IllegalAccessException | InvocationTargetException exception) {
-                    System.out.println("exception " + exception);
-                }
+        } finally {
+            try {
+                runAfterMethods(testClassInstance);
+            } catch (IllegalAccessException | InvocationTargetException exception) {
+                System.out.println("exception in finally after method" + exception);
             }
+        }
+    }
+
+    private void runAfterMethods(Object testClassInstance) throws InvocationTargetException, IllegalAccessException {
+        for (Method afterMethod : afterMethods) {
+            afterMethod.invoke(testClassInstance);
+        }
+    }
+
+    private void runBeforeMethods(Object testClassInstance) throws InvocationTargetException, IllegalAccessException {
+        for (Method beforeMethod : beforeMethods) {
+            beforeMethod.invoke(testClassInstance);
         }
     }
 
