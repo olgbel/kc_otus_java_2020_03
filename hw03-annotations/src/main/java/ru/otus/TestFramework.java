@@ -4,6 +4,7 @@ import ru.otus.annotations.After;
 import ru.otus.annotations.Before;
 import ru.otus.annotations.Test;
 import ru.otus.reports.Report;
+import ru.otus.reports.TestResult;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -12,11 +13,11 @@ import java.util.List;
 
 public class TestFramework {
 
-    private Class clazz;
-    private Report report;
-    private List<Method> beforeMethods = new ArrayList<>();
-    private List<Method> testMethods = new ArrayList<>();
-    private List<Method> afterMethods = new ArrayList<>();
+    private final Class clazz;
+    private final Report report;
+    private final List<Method> beforeMethods = new ArrayList<>();
+    private final List<Method> testMethods = new ArrayList<>();
+    private final List<Method> afterMethods = new ArrayList<>();
 
     public TestFramework(Class clazz, Report report) {
         this.clazz = clazz;
@@ -42,27 +43,40 @@ public class TestFramework {
     }
 
     private void runTriple(Method testMethod) {
-        try {
-            Object testClassInstance = clazz.getDeclaredConstructor().newInstance();
+        Object testClassInstance = getInstance();
 
+        try {
             for (Method beforeMethod : beforeMethods) {
-                report.increaseAll();
                 beforeMethod.invoke(testClassInstance);
-                report.increaseSucceeded();
             }
 
-            report.increaseAll();
             testMethod.invoke(testClassInstance);
-            report.increaseSucceeded();
 
             for (Method afterMethod : afterMethods) {
-                report.increaseAll();
                 afterMethod.invoke(testClassInstance);
-                report.increaseSucceeded();
             }
-        } catch (InstantiationException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+
+            report.putRecord(testMethod, TestResult.SUCCESS);
+        } catch (InvocationTargetException | IllegalAccessException e) {
             System.out.println("exception " + e.getClass());
-            report.increaseFailed();
+            report.putRecord(testMethod, TestResult.FAILED);
+
+            for (Method afterMethod : afterMethods) {
+                try {
+                    afterMethod.invoke(testClassInstance);
+                } catch (IllegalAccessException | InvocationTargetException exception) {
+                    System.out.println("exception " + exception);
+                }
+            }
         }
+    }
+
+    private Object getInstance() {
+        try {
+            return clazz.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            System.out.println("Cannon create new instance " + e);
+        }
+        return null;
     }
 }
