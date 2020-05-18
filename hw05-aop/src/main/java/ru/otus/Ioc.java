@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,13 +17,13 @@ public class Ioc {
 
     static class DemoInvocationHandler implements InvocationHandler {
         private final TestLoggingInterface myLogClass;
-        private final List<Method> logMethods;
+        private final Set<Method> logMethods;
 
         DemoInvocationHandler(TestLoggingInterface myLogClass) {
             this.myLogClass = myLogClass;
             logMethods = Stream.of(myLogClass.getClass().getMethods())
                     .filter(method -> method.getDeclaredAnnotation(Log.class) != null)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toSet());
         }
 
         @Override
