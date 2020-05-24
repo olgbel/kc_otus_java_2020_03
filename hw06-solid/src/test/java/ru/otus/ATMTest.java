@@ -10,22 +10,22 @@ import java.util.*;
 
 public class ATMTest {
 
-    private ATM atmWithEmptyCells;
-    private ATM atmWithFilledCells;
+    private ATMImpl atmWithEmptyCells;
+    private ATMImpl atmWithFilledCells;
 
     @Before
     public void initEmptyATM() {
-        Map<BanknoteAmountEnum, ATMCell> emptyCells = new HashMap<>();
+        Map<BanknoteAmountEnum, ATMCellImpl> emptyCells = new HashMap<>();
 
         for (BanknoteAmountEnum banknoteAmount : BanknoteAmountEnum.values()) {
-            emptyCells.put(banknoteAmount, new ATMCell(new ArrayList<>()));
+            emptyCells.put(banknoteAmount, new ATMCellImpl(new ArrayList<>()));
         }
-        atmWithEmptyCells = new ATM(emptyCells);
+        atmWithEmptyCells = new ATMImpl(emptyCells);
     }
 
     @Before
     public void initFilledATM() {
-        Map<BanknoteAmountEnum, ATMCell> cells = new HashMap<>();
+        Map<BanknoteAmountEnum, ATMCellImpl> cells = new HashMap<>();
         for (BanknoteAmountEnum banknoteAmount : BanknoteAmountEnum.values()) {
             List<Banknote> banknotes = new ArrayList<>();
             if (!banknoteAmount.equals(BanknoteAmountEnum.HUNDRED)) {
@@ -34,11 +34,41 @@ public class ATMTest {
                 banknotes.add(new Banknote(banknoteAmount));
             }
 
-            ATMCell cell = new ATMCell(banknotes);
+            ATMCellImpl cell = new ATMCellImpl(banknotes);
             cells.put(banknoteAmount, cell);
         }
 
-        atmWithFilledCells = new ATM(cells);
+        atmWithFilledCells = new ATMImpl(cells);
+    }
+
+    @Test
+    public void putBanknoteInATM() {
+        List<Banknote> banknotes = new ArrayList<>();
+        ATMCellImpl cell = new ATMCellImpl(banknotes);
+
+        cell.put(new Banknote(BanknoteAmountEnum.FIFTY));
+        int actualResult = cell.getBanknotesCount();
+        int expectedResult = 1;
+
+        Assert.assertEquals(actualResult, expectedResult);
+    }
+
+    @Test(expected = NotEnoughMoneyException.class)
+    public void withdrawFromEmptyCell() {
+        List<Banknote> banknotes = new ArrayList<>();
+        ATMCellImpl cell = new ATMCellImpl(banknotes);
+        cell.withdraw();
+    }
+
+    @Test
+    public void withdrawFromFilledCell() {
+        List<Banknote> banknotes = new ArrayList<>();
+        banknotes.add(new Banknote(BanknoteAmountEnum.TWO_HUNDRED));
+
+        ATMCellImpl cell = new ATMCellImpl(banknotes);
+
+        Banknote actualResult = cell.withdraw();
+        Assert.assertNotNull(actualResult);
     }
 
     @Test
@@ -49,15 +79,15 @@ public class ATMTest {
         banknotes.add(new Banknote(BanknoteAmountEnum.TWO_HUNDRED));
 
         atmWithEmptyCells.putMoney(banknotes);
-        Map<BanknoteAmountEnum, ATMCell> actualResult = atmWithEmptyCells.getCells();
+        Map<BanknoteAmountEnum, ATMCellImpl> actualResult = atmWithEmptyCells.getCells();
 
-        Map<BanknoteAmountEnum, ATMCell> expectedResult = new HashMap<>();
-        expectedResult.put(BanknoteAmountEnum.FIFTY, new ATMCell(new ArrayList<>()));
-        expectedResult.put(BanknoteAmountEnum.HUNDRED, new ATMCell(Arrays.asList(new Banknote(BanknoteAmountEnum.HUNDRED))));
-        expectedResult.put(BanknoteAmountEnum.TWO_HUNDRED, new ATMCell(Arrays.asList(new Banknote(BanknoteAmountEnum.TWO_HUNDRED))));
-        expectedResult.put(BanknoteAmountEnum.FIVE_HUNDRED, new ATMCell(new ArrayList<>()));
-        expectedResult.put(BanknoteAmountEnum.THOUSAND, new ATMCell(new ArrayList<>()));
-        expectedResult.put(BanknoteAmountEnum.FIVE_THOUSAND, new ATMCell(Arrays.asList(new Banknote(BanknoteAmountEnum.FIVE_THOUSAND))));
+        Map<BanknoteAmountEnum, ATMCellImpl> expectedResult = new HashMap<>();
+        expectedResult.put(BanknoteAmountEnum.FIFTY, new ATMCellImpl(new ArrayList<>()));
+        expectedResult.put(BanknoteAmountEnum.HUNDRED, new ATMCellImpl(Arrays.asList(new Banknote(BanknoteAmountEnum.HUNDRED))));
+        expectedResult.put(BanknoteAmountEnum.TWO_HUNDRED, new ATMCellImpl(Arrays.asList(new Banknote(BanknoteAmountEnum.TWO_HUNDRED))));
+        expectedResult.put(BanknoteAmountEnum.FIVE_HUNDRED, new ATMCellImpl(new ArrayList<>()));
+        expectedResult.put(BanknoteAmountEnum.THOUSAND, new ATMCellImpl(new ArrayList<>()));
+        expectedResult.put(BanknoteAmountEnum.FIVE_THOUSAND, new ATMCellImpl(Arrays.asList(new Banknote(BanknoteAmountEnum.FIVE_THOUSAND))));
 
         Assert.assertEquals(expectedResult, actualResult);
     }
@@ -70,25 +100,25 @@ public class ATMTest {
         banknotes.add(new Banknote(BanknoteAmountEnum.TWO_HUNDRED));
 
         atmWithFilledCells.putMoney(banknotes);
-        Map<BanknoteAmountEnum, ATMCell> actualResult = atmWithFilledCells.getCells();
+        Map<BanknoteAmountEnum, ATMCellImpl> actualResult = atmWithFilledCells.getCells();
 
-        Map<BanknoteAmountEnum, ATMCell> expectedResult = new HashMap<>();
+        Map<BanknoteAmountEnum, ATMCellImpl> expectedResult = new HashMap<>();
         expectedResult.put(BanknoteAmountEnum.FIFTY,
-                new ATMCell(Arrays.asList(new Banknote(BanknoteAmountEnum.FIFTY),
+                new ATMCellImpl(Arrays.asList(new Banknote(BanknoteAmountEnum.FIFTY),
                         new Banknote(BanknoteAmountEnum.FIFTY),
                         new Banknote(BanknoteAmountEnum.FIFTY))));
-        expectedResult.put(BanknoteAmountEnum.HUNDRED, new ATMCell(Arrays.asList(new Banknote(BanknoteAmountEnum.HUNDRED))));
-        expectedResult.put(BanknoteAmountEnum.TWO_HUNDRED, new ATMCell(Arrays.asList(new Banknote(BanknoteAmountEnum.TWO_HUNDRED),
+        expectedResult.put(BanknoteAmountEnum.HUNDRED, new ATMCellImpl(Arrays.asList(new Banknote(BanknoteAmountEnum.HUNDRED))));
+        expectedResult.put(BanknoteAmountEnum.TWO_HUNDRED, new ATMCellImpl(Arrays.asList(new Banknote(BanknoteAmountEnum.TWO_HUNDRED),
                 new Banknote(BanknoteAmountEnum.TWO_HUNDRED),
                 new Banknote(BanknoteAmountEnum.TWO_HUNDRED),
                 new Banknote(BanknoteAmountEnum.TWO_HUNDRED))));
-        expectedResult.put(BanknoteAmountEnum.FIVE_HUNDRED, new ATMCell(Arrays.asList(new Banknote(BanknoteAmountEnum.FIVE_HUNDRED),
+        expectedResult.put(BanknoteAmountEnum.FIVE_HUNDRED, new ATMCellImpl(Arrays.asList(new Banknote(BanknoteAmountEnum.FIVE_HUNDRED),
                 new Banknote(BanknoteAmountEnum.FIVE_HUNDRED),
                 new Banknote(BanknoteAmountEnum.FIVE_HUNDRED))));
-        expectedResult.put(BanknoteAmountEnum.THOUSAND, new ATMCell(Arrays.asList(new Banknote(BanknoteAmountEnum.THOUSAND),
+        expectedResult.put(BanknoteAmountEnum.THOUSAND, new ATMCellImpl(Arrays.asList(new Banknote(BanknoteAmountEnum.THOUSAND),
                 new Banknote(BanknoteAmountEnum.THOUSAND),
                 new Banknote(BanknoteAmountEnum.THOUSAND))));
-        expectedResult.put(BanknoteAmountEnum.FIVE_THOUSAND, new ATMCell(Arrays.asList(new Banknote(BanknoteAmountEnum.FIVE_THOUSAND),
+        expectedResult.put(BanknoteAmountEnum.FIVE_THOUSAND, new ATMCellImpl(Arrays.asList(new Banknote(BanknoteAmountEnum.FIVE_THOUSAND),
                 new Banknote(BanknoteAmountEnum.FIVE_THOUSAND),
                 new Banknote(BanknoteAmountEnum.FIVE_THOUSAND),
                 new Banknote(BanknoteAmountEnum.FIVE_THOUSAND))));
@@ -96,25 +126,26 @@ public class ATMTest {
     }
 
     @Test(expected = NotEnoughMoneyException.class)
-    public void giveOutBanknotesTooMuchSum() throws NotEnoughMoneyException, IncorrectFormatAmountException {
+    public void giveOutBanknotesTooMuchSum() {
         atmWithEmptyCells.withdrawMoney(1000);
     }
 
     @Test(expected = IncorrectFormatAmountException.class)
-    public void giveOutBanknotesIncorrectFormatSum() throws IncorrectFormatAmountException, NotEnoughMoneyException {
+    public void giveOutBanknotesIncorrectFormatSum() {
         atmWithFilledCells.withdrawMoney(12345);
     }
 
     @Test
-    public void giveOutBanknotes() throws IncorrectFormatAmountException, NotEnoughMoneyException {
+    public void giveOutBanknotes() {
         List<Banknote> actualBanknotes = atmWithFilledCells.withdrawMoney(1300);
-
+        actualBanknotes.sort((o1, o2) -> o2.getAmount().getAmount() - o1.getAmount().getAmount());
         List<Banknote> expectedBanknotes = Arrays.asList(
                 new Banknote(BanknoteAmountEnum.TWO_HUNDRED),
                 new Banknote(BanknoteAmountEnum.FIFTY),
                 new Banknote(BanknoteAmountEnum.FIFTY),
                 new Banknote(BanknoteAmountEnum.THOUSAND)
         );
+        expectedBanknotes.sort((o1, o2) -> o2.getAmount().getAmount() - o1.getAmount().getAmount());
 
         Assert.assertEquals(actualBanknotes, expectedBanknotes);
 
