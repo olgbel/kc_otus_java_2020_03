@@ -1,17 +1,17 @@
-package ru.otus2;
+package ru.otus;
 
-import ru.otus2.exceptions.IncorrectFormatAmountException;
-import ru.otus2.exceptions.NotEnoughMoneyException;
+import ru.otus.exceptions.IncorrectFormatAmountException;
+import ru.otus.exceptions.NotEnoughMoneyException;
 
 import java.util.*;
 
 public class ATM implements IATM {
     private Map<BanknoteAmountEnum, ATMCell> cells;
-    private ATMMemento atmInitialSnapshot;
+    private final ATMMemento atmInitialSnapshot;
 
     public ATM(Map<BanknoteAmountEnum, ATMCell> cells) {
         this.cells = cells;
-        atmInitialSnapshot = save();
+        atmInitialSnapshot = new ATMMemento(cells);
     }
 
     public void putMoney(List<Banknote> banknotes) {
@@ -86,19 +86,28 @@ public class ATM implements IATM {
         return this.cells.toString();
     }
 
-    public ATMMemento save() {
-        Map<BanknoteAmountEnum, ATMCell> ccc = new HashMap<>();
-        for (Map.Entry<BanknoteAmountEnum, ATMCell> entry : cells.entrySet()) {
-            List<Banknote> banknotes = new ArrayList<>();
-            for (int i = 0; i < entry.getValue().getBanknotesCount(); i++) {
-                banknotes.add(new Banknote(entry.getKey()));
-            }
-            ccc.put(entry.getKey(), new ATMCell(banknotes));
-        }
-        return new ATMMemento(ccc);
+    public void restore() {
+        cells = atmInitialSnapshot.getState();
     }
 
-    public void restore(ATMMemento m) {
-        cells = m.getState();
+    @Override
+    public int hashCode() {
+        return Objects.hash(cells);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        ATM atm = (ATM) obj;
+        if (atm.cells.size() != cells.size())
+            return false;
+
+        return atm.cells.entrySet().stream()
+                .allMatch(e -> e.getValue().equals(cells.get(e.getKey())));
     }
 }

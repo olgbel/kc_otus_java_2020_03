@@ -1,4 +1,4 @@
-package ru.otus2.exceptions;
+package ru.otus.exceptions;
 
 public class NotEnoughMoneyException extends ATMException {
 

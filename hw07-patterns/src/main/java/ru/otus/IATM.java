@@ -1,4 +1,4 @@
-package ru.otus2;
+package ru.otus;
 
 import java.util.List;
 
@@ -8,4 +8,6 @@ public interface IATM {
     List<Banknote> withdrawMoney(int amount);
 
     long giveOutBalance();
+
+    void restore();
 }

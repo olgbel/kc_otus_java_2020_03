@@ -1,6 +1,6 @@
-package ru.otus2;
+package ru.otus;
 
-import ru.otus2.exceptions.NotEnoughMoneyException;
+import ru.otus.exceptions.NotEnoughMoneyException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -49,7 +49,4 @@ public class ATMCell implements IATMCell {
     public String toString() {
         return this.banknotes.toString();
     }
-
-
-
 }
