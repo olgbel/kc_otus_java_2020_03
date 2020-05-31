@@ -3,17 +3,21 @@ package ru.otus;
 import java.util.List;
 
 public class Department implements IDepartment {
-    private final List<ATM> atms;
+    private final List<IATM> atms;
 
-    public Department(List<ATM> atms) {
+    public Department(List<IATM> atms) {
         this.atms = atms;
     }
 
     public void restoreATMs() {
-        atms.forEach(ATM::restore);
+        atms.forEach(IATM::restore);
     }
 
-    public List<ATM> getATMs() {
+    public List<IATM> getATMs() {
         return atms;
+    }
+
+    public long getBalance() {
+        return atms.stream().mapToLong(IATM::giveOutBalance).sum();
     }
 }
