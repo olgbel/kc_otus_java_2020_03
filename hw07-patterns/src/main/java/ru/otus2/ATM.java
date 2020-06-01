@@ -65,7 +65,10 @@ public class ATM extends ATMProcessor implements IATM {
     }
 
     private void checkAmount(int amount) {
-        long currentBalance = giveOutBalance();
+        long currentBalance = 0;
+        for (Map.Entry<BanknoteAmountEnum, ATMCell> cell : cells.entrySet()) {
+            currentBalance += cell.getKey().getAmount() * cell.getValue().getBanknotesCount();
+        }
         if (amount < 1 || amount > currentBalance) {
             throw new NotEnoughMoneyException("There is no such money in ATM");
         }
@@ -74,12 +77,8 @@ public class ATM extends ATMProcessor implements IATM {
         }
     }
 
-    public long giveOutBalance() {
-        long balance = 0;
-        for (Map.Entry<BanknoteAmountEnum, ATMCell> cell : cells.entrySet()) {
-            balance += cell.getKey().getAmount() * cell.getValue().getBanknotesCount();
-        }
-        return balance;
+    public Map<BanknoteAmountEnum, ATMCell> getCells() {
+        return cells;
     }
 
     public String toString() {

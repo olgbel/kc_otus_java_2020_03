@@ -2,6 +2,7 @@ package ru.otus2;
 
 import org.junit.Assert;
 import org.junit.Test;
+import ru.otus2.command.GiveATMBalance;
 
 import java.util.*;
 
@@ -22,13 +23,13 @@ public class DepartmentTest {
 
         department.restoreATMs();
 
-        List<IATM> actualATMs = department.getATMs();
+        List<ATM> actualATMs = department.getATMs();
 
         Map<BanknoteAmountEnum, ATMCell> emptyCells = new HashMap<>();
         for (BanknoteAmountEnum banknoteAmount : BanknoteAmountEnum.values()) {
             emptyCells.put(banknoteAmount, new ATMCell(new ArrayList<>()));
         }
-        List<IATM> expectedATMs = new Department(Collections.singletonList(new ATM(emptyCells))).getATMs();
+        List<ATM> expectedATMs = new Department(Collections.singletonList(new ATM(emptyCells))).getATMs();
         Assert.assertEquals(expectedATMs, actualATMs);
     }
 
@@ -58,7 +59,7 @@ public class DepartmentTest {
                 new Banknote(BanknoteAmountEnum.FIVE_THOUSAND)));
 
         department.restoreATMs();
-        List<IATM> actualATMs = department.getATMs();
+        List<ATM> actualATMs = department.getATMs();
 
         Map<BanknoteAmountEnum, ATMCell> expectedEmptyCells = new HashMap<>();
         for (BanknoteAmountEnum banknoteAmount : BanknoteAmountEnum.values()) {
@@ -69,7 +70,7 @@ public class DepartmentTest {
             expectedCells.put(banknoteAmount, new ATMCell(Collections.singletonList(new Banknote(banknoteAmount))));
         }
 
-        List<IATM> expectedATMs = new Department(Arrays.asList(new ATM(expectedEmptyCells), new ATM(expectedCells))).getATMs();
+        List<ATM> expectedATMs = new Department(Arrays.asList(new ATM(expectedEmptyCells), new ATM(expectedCells))).getATMs();
 
         Assert.assertEquals(expectedATMs, actualATMs);
     }
@@ -91,8 +92,10 @@ public class DepartmentTest {
         ATM atm2 = new ATM(cells2);
 
         Department department = new Department(Arrays.asList(atm1, atm2));
-        long actualResult = department.getBalance();
 
+        department.addCommand(new GiveATMBalance());
+
+        long actualResult = department.getBalance();
         long expectedResult = 5000 + 1000 + 500 + 200 + 100 + 50;
         Assert.assertEquals(expectedResult, actualResult);
     }

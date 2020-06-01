@@ -9,15 +9,15 @@ public class ATMMemento {
     private final Map<BanknoteAmountEnum, ATMCell> cells;
 
     public ATMMemento(Map<BanknoteAmountEnum, ATMCell> cells) {
-        Map<BanknoteAmountEnum, ATMCell> ccc = new HashMap<>();
-        cells.forEach((key, value) -> {
+        Map<BanknoteAmountEnum, ATMCell> mementoCells = new HashMap<>();
+        cells.forEach((banknoteAmount, atmCell) -> {
             List<Banknote> banknotes = new ArrayList<>();
-            for (int i = 0; i < value.getBanknotesCount(); i++) {
-                banknotes.add(new Banknote(key));
+            for (int i = 0; i < atmCell.getBanknotesCount(); i++) {
+                banknotes.add(new Banknote(banknoteAmount));
             }
-            ccc.put(key, new ATMCell(banknotes));
+            mementoCells.put(banknoteAmount, new ATMCell(banknotes));
         });
-        this.cells = ccc;
+        this.cells = mementoCells;
     }
 
     public Map<BanknoteAmountEnum, ATMCell> getState() {
