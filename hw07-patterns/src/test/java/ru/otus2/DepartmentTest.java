@@ -2,14 +2,13 @@ package ru.otus2;
 
 import org.junit.Assert;
 import org.junit.Test;
-import ru.otus.*;
 
 import java.util.*;
 
 public class DepartmentTest {
 
     @Test
-    public void restoreATMsTest() {
+    public void restoreSingleATMTest() {
         Map<BanknoteAmountEnum, ATMCell> cells = new HashMap<>();
         for (BanknoteAmountEnum banknoteAmount : BanknoteAmountEnum.values()) {
             cells.put(banknoteAmount, new ATMCell(new ArrayList<>()));
@@ -17,12 +16,12 @@ public class DepartmentTest {
 
         ATM atm = new ATM(cells);
         Department department = new Department(Collections.singletonList(atm));
-
         atm.putMoney(Arrays.asList(new Banknote(BanknoteAmountEnum.THOUSAND),
                 new Banknote(BanknoteAmountEnum.FIFTY),
                 new Banknote(BanknoteAmountEnum.FIVE_THOUSAND)));
 
         department.restoreATMs();
+
         List<IATM> actualATMs = department.getATMs();
 
         Map<BanknoteAmountEnum, ATMCell> emptyCells = new HashMap<>();
@@ -30,8 +29,49 @@ public class DepartmentTest {
             emptyCells.put(banknoteAmount, new ATMCell(new ArrayList<>()));
         }
         List<IATM> expectedATMs = new Department(Collections.singletonList(new ATM(emptyCells))).getATMs();
-        System.out.println("actual atm: " + actualATMs);
-        Assert.assertEquals(actualATMs, expectedATMs);
+        Assert.assertEquals(expectedATMs, actualATMs);
+    }
+
+    @Test
+    public void restoreATMsTest(){
+        Map<BanknoteAmountEnum, ATMCell> emptyCells = new HashMap<>();
+        for (BanknoteAmountEnum banknoteAmount : BanknoteAmountEnum.values()) {
+            emptyCells.put(banknoteAmount, new ATMCell(new ArrayList<>()));
+        }
+        ATM emptyATM = new ATM(emptyCells);
+
+        Map<BanknoteAmountEnum, ATMCell> cells = new HashMap<>();
+        for (BanknoteAmountEnum banknoteAmount : BanknoteAmountEnum.values()) {
+            List<Banknote> banknotes = new ArrayList<>();
+            banknotes.add(new Banknote(banknoteAmount));
+            cells.put(banknoteAmount, new ATMCell(banknotes));
+        }
+        ATM atm = new ATM(cells);
+
+        Department department = new Department(Arrays.asList(emptyATM, atm));
+
+        emptyATM.putMoney(Arrays.asList(new Banknote(BanknoteAmountEnum.THOUSAND),
+                new Banknote(BanknoteAmountEnum.FIFTY),
+                new Banknote(BanknoteAmountEnum.FIVE_THOUSAND)));
+        atm.putMoney(Arrays.asList(new Banknote(BanknoteAmountEnum.THOUSAND),
+                new Banknote(BanknoteAmountEnum.FIFTY),
+                new Banknote(BanknoteAmountEnum.FIVE_THOUSAND)));
+
+        department.restoreATMs();
+        List<IATM> actualATMs = department.getATMs();
+
+        Map<BanknoteAmountEnum, ATMCell> expectedEmptyCells = new HashMap<>();
+        for (BanknoteAmountEnum banknoteAmount : BanknoteAmountEnum.values()) {
+            expectedEmptyCells.put(banknoteAmount, new ATMCell(new ArrayList<>()));
+        }
+        Map<BanknoteAmountEnum, ATMCell> expectedCells = new HashMap<>();
+        for (BanknoteAmountEnum banknoteAmount : BanknoteAmountEnum.values()) {
+            expectedCells.put(banknoteAmount, new ATMCell(Collections.singletonList(new Banknote(banknoteAmount))));
+        }
+
+        List<IATM> expectedATMs = new Department(Arrays.asList(new ATM(expectedEmptyCells), new ATM(expectedCells))).getATMs();
+
+        Assert.assertEquals(expectedATMs, actualATMs);
     }
 
     @Test
@@ -54,7 +94,7 @@ public class DepartmentTest {
         long actualResult = department.getBalance();
 
         long expectedResult = 5000 + 1000 + 500 + 200 + 100 + 50;
-        Assert.assertEquals(actualResult, expectedResult);
+        Assert.assertEquals(expectedResult, actualResult);
     }
 
 }
