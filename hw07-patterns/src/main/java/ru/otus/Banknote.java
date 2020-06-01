@@ -1,4 +1,4 @@
-package ru.otus2;
+package ru.otus;
 
 import java.util.Objects;
 
@@ -11,11 +11,6 @@ public class Banknote {
 
     public BanknoteAmountEnum getAmount() {
         return this.amount;
-    }
-
-    @Override
-    public String toString() {
-        return this.amount.toString();
     }
 
     @Override
@@ -33,5 +28,10 @@ public class Banknote {
 
         Banknote objB = (Banknote) obj;
         return this.amount == objB.amount;
+    }
+
+    @Override
+    public String toString() {
+        return this.amount.toString();
     }
 }

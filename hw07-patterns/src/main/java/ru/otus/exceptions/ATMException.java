@@ -1,4 +1,4 @@
-package ru.otus2.exceptions;
+package ru.otus.exceptions;
 
 public class ATMException extends RuntimeException {
     public ATMException(String message) {

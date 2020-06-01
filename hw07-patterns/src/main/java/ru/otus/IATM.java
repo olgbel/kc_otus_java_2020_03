@@ -1,4 +1,4 @@
-package ru.otus2;
+package ru.otus;
 
 import java.util.List;
 

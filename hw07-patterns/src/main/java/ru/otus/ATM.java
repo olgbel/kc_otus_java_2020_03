@@ -1,11 +1,12 @@
-package ru.otus2;
+package ru.otus;
 
-import ru.otus2.exceptions.IncorrectFormatAmountException;
-import ru.otus2.exceptions.NotEnoughMoneyException;
+import ru.otus.exceptions.IncorrectFormatAmountException;
+import ru.otus.exceptions.NotEnoughMoneyException;
+import ru.otus.memento.ATMMemento;
 
 import java.util.*;
 
-public class ATM extends ATMProcessor implements IATM {
+public class ATM extends ATMProcessor implements IATM, Listener {
     private Map<BanknoteAmountEnum, ATMCell> cells;
     private final ATMMemento atmInitialSnapshot;
 
@@ -81,13 +82,14 @@ public class ATM extends ATMProcessor implements IATM {
         return cells;
     }
 
-    public String toString() {
-        return this.cells.toString();
-    }
-
     @Override
     protected void restore() {
         cells = atmInitialSnapshot.getState();
+    }
+
+    @Override
+    public void onUpdate(String updateInfo) {
+        System.out.println(updateInfo);
     }
 
     @Override
@@ -109,5 +111,10 @@ public class ATM extends ATMProcessor implements IATM {
 
         return atm.cells.entrySet().stream()
                 .allMatch(e -> e.getValue().equals(cells.get(e.getKey())));
+    }
+
+    @Override
+    public String toString() {
+        return this.cells.toString();
     }
 }

@@ -1,6 +1,6 @@
-package ru.otus2.command;
+package ru.otus.command;
 
-import ru.otus2.ATM;
+import ru.otus.ATM;
 
 @FunctionalInterface
 public interface ATMCommand {

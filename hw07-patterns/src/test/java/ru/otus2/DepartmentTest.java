@@ -2,7 +2,8 @@ package ru.otus2;
 
 import org.junit.Assert;
 import org.junit.Test;
-import ru.otus2.command.GiveATMBalance;
+import ru.otus.*;
+import ru.otus.command.GiveATMBalance;
 
 import java.util.*;
 

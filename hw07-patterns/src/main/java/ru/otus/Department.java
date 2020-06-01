@@ -1,6 +1,6 @@
-package ru.otus2;
+package ru.otus;
 
-import ru.otus2.command.ATMCommand;
+import ru.otus.command.ATMCommand;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +21,7 @@ public class Department implements IDepartment {
                 current.setNext(next);
             }
             current.process((IATM) current);
+            atms.get(i).onUpdate("ATM has been restored: " + atms.get(i));
         }
     }
 
@@ -28,7 +29,15 @@ public class Department implements IDepartment {
         return atms;
     }
 
-    void addCommand(ATMCommand command) {
+    public void addATM(ATM atm) {
+        atms.add(atm);
+    }
+
+    public void removeATM(ATM atm) {
+        atms.remove(atm);
+    }
+
+    public void addCommand(ATMCommand command) {
         commands.add(command);
     }
 
@@ -36,7 +45,7 @@ public class Department implements IDepartment {
         long balance = 0;
         for (ATM atm : atms) {
             balance += commands.stream().map(cmd -> cmd.execute(atm))
-            .reduce(Long::sum).orElse(0L);
+                    .reduce(Long::sum).orElse(0L);
         }
         return balance;
     }

@@ -1,4 +1,8 @@
-package ru.otus2;
+package ru.otus.memento;
+
+import ru.otus.Banknote;
+import ru.otus.BanknoteAmountEnum;
+import ru.otus.ATMCell;
 
 import java.util.ArrayList;
 import java.util.HashMap;

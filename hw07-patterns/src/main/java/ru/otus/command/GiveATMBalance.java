@@ -1,12 +1,12 @@
-package ru.otus2.command;
+package ru.otus.command;
 
-import ru.otus2.ATM;
-import ru.otus2.ATMCell;
-import ru.otus2.BanknoteAmountEnum;
+import ru.otus.BanknoteAmountEnum;
+import ru.otus.ATM;
+import ru.otus.ATMCell;
+
 import java.util.Map;
 
 public class GiveATMBalance implements ATMCommand {
-
     @Override
     public long execute(ATM atm) {
         long balance = 0;
