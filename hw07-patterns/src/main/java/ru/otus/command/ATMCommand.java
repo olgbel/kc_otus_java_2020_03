@@ -1,8 +1,8 @@
 package ru.otus.command;
 
-import ru.otus.ATM;
+import ru.otus.ATMImpl;
 
 @FunctionalInterface
 public interface ATMCommand {
-    long execute(ATM atm);
+    long execute(ATMImpl atm);
 }

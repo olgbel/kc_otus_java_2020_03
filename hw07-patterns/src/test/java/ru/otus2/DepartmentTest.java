@@ -11,46 +11,46 @@ public class DepartmentTest {
 
     @Test
     public void restoreSingleATMTest() {
-        Map<BanknoteAmountEnum, ATMCell> cells = new HashMap<>();
+        Map<BanknoteAmountEnum, ATMCellImpl> cells = new HashMap<>();
         for (BanknoteAmountEnum banknoteAmount : BanknoteAmountEnum.values()) {
-            cells.put(banknoteAmount, new ATMCell(new ArrayList<>()));
+            cells.put(banknoteAmount, new ATMCellImpl(new ArrayList<>()));
         }
 
-        ATM atm = new ATM(cells);
-        Department department = new Department(Collections.singletonList(atm));
+        ATMImpl atm = new ATMImpl(cells);
+        DepartmentImpl department = new DepartmentImpl(Collections.singletonList(atm));
         atm.putMoney(Arrays.asList(new Banknote(BanknoteAmountEnum.THOUSAND),
                 new Banknote(BanknoteAmountEnum.FIFTY),
                 new Banknote(BanknoteAmountEnum.FIVE_THOUSAND)));
 
         department.restoreATMs();
 
-        List<ATM> actualATMs = department.getATMs();
+        List<ATMImpl> actualATMs = department.getATMs();
 
-        Map<BanknoteAmountEnum, ATMCell> emptyCells = new HashMap<>();
+        Map<BanknoteAmountEnum, ATMCellImpl> emptyCells = new HashMap<>();
         for (BanknoteAmountEnum banknoteAmount : BanknoteAmountEnum.values()) {
-            emptyCells.put(banknoteAmount, new ATMCell(new ArrayList<>()));
+            emptyCells.put(banknoteAmount, new ATMCellImpl(new ArrayList<>()));
         }
-        List<ATM> expectedATMs = new Department(Collections.singletonList(new ATM(emptyCells))).getATMs();
+        List<ATMImpl> expectedATMs = new DepartmentImpl(Collections.singletonList(new ATMImpl(emptyCells))).getATMs();
         Assert.assertEquals(expectedATMs, actualATMs);
     }
 
     @Test
     public void restoreATMsTest(){
-        Map<BanknoteAmountEnum, ATMCell> emptyCells = new HashMap<>();
+        Map<BanknoteAmountEnum, ATMCellImpl> emptyCells = new HashMap<>();
         for (BanknoteAmountEnum banknoteAmount : BanknoteAmountEnum.values()) {
-            emptyCells.put(banknoteAmount, new ATMCell(new ArrayList<>()));
+            emptyCells.put(banknoteAmount, new ATMCellImpl(new ArrayList<>()));
         }
-        ATM emptyATM = new ATM(emptyCells);
+        ATMImpl emptyATM = new ATMImpl(emptyCells);
 
-        Map<BanknoteAmountEnum, ATMCell> cells = new HashMap<>();
+        Map<BanknoteAmountEnum, ATMCellImpl> cells = new HashMap<>();
         for (BanknoteAmountEnum banknoteAmount : BanknoteAmountEnum.values()) {
             List<Banknote> banknotes = new ArrayList<>();
             banknotes.add(new Banknote(banknoteAmount));
-            cells.put(banknoteAmount, new ATMCell(banknotes));
+            cells.put(banknoteAmount, new ATMCellImpl(banknotes));
         }
-        ATM atm = new ATM(cells);
+        ATMImpl atm = new ATMImpl(cells);
 
-        Department department = new Department(Arrays.asList(emptyATM, atm));
+        DepartmentImpl department = new DepartmentImpl(Arrays.asList(emptyATM, atm));
 
         emptyATM.putMoney(Arrays.asList(new Banknote(BanknoteAmountEnum.THOUSAND),
                 new Banknote(BanknoteAmountEnum.FIFTY),
@@ -60,39 +60,39 @@ public class DepartmentTest {
                 new Banknote(BanknoteAmountEnum.FIVE_THOUSAND)));
 
         department.restoreATMs();
-        List<ATM> actualATMs = department.getATMs();
+        List<ATMImpl> actualATMs = department.getATMs();
 
-        Map<BanknoteAmountEnum, ATMCell> expectedEmptyCells = new HashMap<>();
+        Map<BanknoteAmountEnum, ATMCellImpl> expectedEmptyCells = new HashMap<>();
         for (BanknoteAmountEnum banknoteAmount : BanknoteAmountEnum.values()) {
-            expectedEmptyCells.put(banknoteAmount, new ATMCell(new ArrayList<>()));
+            expectedEmptyCells.put(banknoteAmount, new ATMCellImpl(new ArrayList<>()));
         }
-        Map<BanknoteAmountEnum, ATMCell> expectedCells = new HashMap<>();
+        Map<BanknoteAmountEnum, ATMCellImpl> expectedCells = new HashMap<>();
         for (BanknoteAmountEnum banknoteAmount : BanknoteAmountEnum.values()) {
-            expectedCells.put(banknoteAmount, new ATMCell(Collections.singletonList(new Banknote(banknoteAmount))));
+            expectedCells.put(banknoteAmount, new ATMCellImpl(Collections.singletonList(new Banknote(banknoteAmount))));
         }
 
-        List<ATM> expectedATMs = new Department(Arrays.asList(new ATM(expectedEmptyCells), new ATM(expectedCells))).getATMs();
+        List<ATMImpl> expectedATMs = new DepartmentImpl(Arrays.asList(new ATMImpl(expectedEmptyCells), new ATMImpl(expectedCells))).getATMs();
 
         Assert.assertEquals(expectedATMs, actualATMs);
     }
 
     @Test
     public void getBalanceTest() {
-        Map<BanknoteAmountEnum, ATMCell> cells1 = new HashMap<>();
+        Map<BanknoteAmountEnum, ATMCellImpl> cells1 = new HashMap<>();
         for (BanknoteAmountEnum banknoteAmount : BanknoteAmountEnum.values()) {
-            cells1.put(banknoteAmount, new ATMCell(new ArrayList<>()));
+            cells1.put(banknoteAmount, new ATMCellImpl(new ArrayList<>()));
         }
-        ATM atm1 = new ATM(cells1);
+        ATMImpl atm1 = new ATMImpl(cells1);
 
-        Map<BanknoteAmountEnum, ATMCell> cells2 = new HashMap<>();
+        Map<BanknoteAmountEnum, ATMCellImpl> cells2 = new HashMap<>();
         for (BanknoteAmountEnum banknoteAmount : BanknoteAmountEnum.values()) {
             List<Banknote> banknotes = new ArrayList<>();
             banknotes.add(new Banknote(banknoteAmount));
-            cells2.put(banknoteAmount, new ATMCell(banknotes));
+            cells2.put(banknoteAmount, new ATMCellImpl(banknotes));
         }
-        ATM atm2 = new ATM(cells2);
+        ATMImpl atm2 = new ATMImpl(cells2);
 
-        Department department = new Department(Arrays.asList(atm1, atm2));
+        DepartmentImpl department = new DepartmentImpl(Arrays.asList(atm1, atm2));
 
         department.addCommand(new GiveATMBalance());
 

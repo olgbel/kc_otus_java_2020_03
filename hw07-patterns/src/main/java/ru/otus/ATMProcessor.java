@@ -11,7 +11,7 @@ public abstract class ATMProcessor {
         this.next = next;
     }
 
-    void process(IATM atm) {
+    void process(ATM atm) {
         restore();
         if (getNext() != null) {
             getNext().process(atm);
