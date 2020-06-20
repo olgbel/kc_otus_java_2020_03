@@ -8,6 +8,9 @@ import ru.otus.h2.DataSourceH2;
 import ru.otus.jdbc.DbExecutorImpl;
 import ru.otus.jdbc.dao.AccountDaoJdbc;
 import ru.otus.jdbc.dao.UserDaoJdbc;
+import ru.otus.jdbc.mapper.EntityClassMetaDataImpl;
+import ru.otus.jdbc.mapper.EntitySQLMetaDataImpl;
+import ru.otus.jdbc.mapper.JdbcMapperImpl;
 import ru.otus.jdbc.sessionmanager.SessionManagerJdbc;
 
 import javax.sql.DataSource;
@@ -35,7 +38,10 @@ public class DbServiceDemo {
 
     private static void testUser(SessionManagerJdbc sessionManager) {
         DbExecutorImpl<User> dbExecutor = new DbExecutorImpl<>();
-        var userDao = new UserDaoJdbc(sessionManager, dbExecutor);
+        var entityClassMetaData = new EntityClassMetaDataImpl<>(User.class);
+        var entitySQLMetaData = new EntitySQLMetaDataImpl(entityClassMetaData);
+        JdbcMapperImpl<User> userJdbcMapper = new JdbcMapperImpl<>(dbExecutor, sessionManager, entityClassMetaData, entitySQLMetaData);
+        var userDao = new UserDaoJdbc(userJdbcMapper);
 
         var dbServiceUser = new DbServiceUserImpl(userDao);
         var id = dbServiceUser.saveUser(new User(1, "dbServiceUser"));
@@ -56,7 +62,11 @@ public class DbServiceDemo {
 
     private static void testAccount(SessionManagerJdbc sessionManager) {
         DbExecutorImpl<Account> dbExecutor = new DbExecutorImpl<>();
-        var accountDao = new AccountDaoJdbc(sessionManager, dbExecutor);
+        var entityClassMetaData = new EntityClassMetaDataImpl<>(Account.class);
+        var entitySQLMetaData = new EntitySQLMetaDataImpl(entityClassMetaData);
+        JdbcMapperImpl<Account> accountJdbcMapper = new JdbcMapperImpl<>(dbExecutor, sessionManager, entityClassMetaData, entitySQLMetaData);
+
+        var accountDao = new AccountDaoJdbc(accountJdbcMapper);
 
         var dbServiceAccount = new DbServiceAccountImpl(accountDao);
         var id = dbServiceAccount.saveAccount(new Account(1, "credit", 12));

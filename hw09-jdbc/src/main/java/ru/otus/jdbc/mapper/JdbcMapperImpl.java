@@ -3,7 +3,7 @@ package ru.otus.jdbc.mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.core.dao.DaoException;
-import ru.otus.jdbc.DbExecutorImpl;
+import ru.otus.jdbc.DbExecutor;
 import ru.otus.jdbc.sessionmanager.SessionManagerJdbc;
 
 import java.lang.reflect.Constructor;
@@ -20,19 +20,20 @@ import java.util.Optional;
 public class JdbcMapperImpl<T> implements JdbcMapper<T> {
     private static final Logger logger = LoggerFactory.getLogger(JdbcMapperImpl.class);
 
-    private final DbExecutorImpl<T> dbExecutor;
+    private final DbExecutor<T> dbExecutor;
     private final SessionManagerJdbc sessionManager;
+    private final EntityClassMetaData<T> entityClassMetaData;
+    private final EntitySQLMetaData entitySQLMetaData;
 
-    public JdbcMapperImpl(DbExecutorImpl<T> dbExecutor, SessionManagerJdbc sessionManager) {
+    public JdbcMapperImpl(DbExecutor<T> dbExecutor, SessionManagerJdbc sessionManager, EntityClassMetaData<T> entityClassMetaData, EntitySQLMetaData entitySQLMetaData) {
         this.dbExecutor = dbExecutor;
         this.sessionManager = sessionManager;
+        this.entityClassMetaData = entityClassMetaData;
+        this.entitySQLMetaData = entitySQLMetaData;
     }
 
     @Override
     public void insert(T objectData) {
-        var entityClassMetadata = new EntityClassMetaDataImpl<T>((Class<T>) objectData.getClass());
-        var entitySQLMetaData = new EntitySQLMetaDataImpl(entityClassMetadata);
-
         String query = entitySQLMetaData.getInsertSql();
         List<Object> params = fillObjectParams(objectData);
         try {
@@ -44,9 +45,6 @@ public class JdbcMapperImpl<T> implements JdbcMapper<T> {
 
     @Override
     public void update(T objectData) {
-        var entityClassMetadata = new EntityClassMetaDataImpl<T>((Class<T>) objectData.getClass());
-        var entitySQLMetaData = new EntitySQLMetaDataImpl(entityClassMetadata);
-
         String query = entitySQLMetaData.getUpdateSql();
         List<Object> params = fillObjectParams(objectData);
         long id = getIdFieldValue(objectData);
@@ -61,7 +59,7 @@ public class JdbcMapperImpl<T> implements JdbcMapper<T> {
     @Override
     public void insertOrUpdate(T objectData) {
         long id = getIdFieldValue(objectData);
-        Optional<T> object = (Optional<T>) findById(id, (Class<T>) objectData.getClass());
+        Optional<T> object = findById(id, (Class<T>) objectData.getClass());
         if (object.isPresent()) {
             update(objectData);
         } else {
@@ -70,17 +68,14 @@ public class JdbcMapperImpl<T> implements JdbcMapper<T> {
     }
 
     @Override
-    public T findById(long id, Class<T> clazz) {
-        var entityClassMetadata = new EntityClassMetaDataImpl<T>(clazz);
-        var entitySQLMetaData = new EntitySQLMetaDataImpl(entityClassMetadata);
-
+    public Optional<T> findById(long id, Class<T> clazz) {
         String query = entitySQLMetaData.getSelectByIdSql();
         try {
-            return (T) dbExecutor.executeSelect(getConnection(), query,
+            return dbExecutor.executeSelect(getConnection(), query,
                     id, rs -> {
                         try {
                             if (rs.next()) {
-                                return createNewObject(rs, clazz);
+                                return createNewObject(rs);
                             }
                         } catch (SQLException e) {
                             logger.error(e.getMessage(), e);
@@ -90,11 +85,10 @@ public class JdbcMapperImpl<T> implements JdbcMapper<T> {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-        return null;
+        return Optional.empty();
     }
 
-    private T createNewObject(ResultSet resultSet, Class<T> clazz) {
-        EntityClassMetaDataImpl<T> entityClassMetaData = new EntityClassMetaDataImpl<>(clazz);
+    private T createNewObject(ResultSet resultSet) {
         Constructor<T> constructor = entityClassMetaData.getConstructor();
         T newObject = null;
         try {
@@ -116,8 +110,6 @@ public class JdbcMapperImpl<T> implements JdbcMapper<T> {
 
     private List<Object> fillObjectParams(T objectData) {
         List<Object> params = new ArrayList<>();
-        var entityClassMetaData = new EntityClassMetaDataImpl(objectData.getClass());
-
         List<Field> fields = entityClassMetaData.getFieldsWithoutId();
         for (Field field : fields) {
             field.setAccessible(true);
@@ -134,10 +126,9 @@ public class JdbcMapperImpl<T> implements JdbcMapper<T> {
     }
 
     private long getIdFieldValue(T objectData) {
-        var entityClassMetadata = new EntityClassMetaDataImpl<T>((Class<T>) objectData.getClass());
         Field field;
         try {
-            field = objectData.getClass().getDeclaredField(entityClassMetadata.getIdField().getName());
+            field = objectData.getClass().getDeclaredField(entityClassMetaData.getIdField().getName());
             field.setAccessible(true);
             return (long) field.get(objectData);
         } catch (NoSuchFieldException e) {

@@ -3,23 +3,20 @@ package ru.otus.jdbc.dao;
 import ru.otus.core.dao.AccountDao;
 import ru.otus.core.model.Account;
 import ru.otus.core.sessionManager.SessionManager;
-import ru.otus.jdbc.DbExecutorImpl;
-import ru.otus.jdbc.mapper.JdbcMapperImpl;
-import ru.otus.jdbc.sessionmanager.SessionManagerJdbc;
+import ru.otus.jdbc.mapper.JdbcMapper;
 
 import java.util.Optional;
 
 public class AccountDaoJdbc implements AccountDao {
+    private final JdbcMapper<Account> jdbcMapper;
 
-    private final JdbcMapperImpl jdbcMapper;
-
-    public AccountDaoJdbc(SessionManagerJdbc sessionManager, DbExecutorImpl<Account> dbExecutor) {
-        jdbcMapper = new JdbcMapperImpl(dbExecutor, sessionManager);
+    public AccountDaoJdbc(JdbcMapper<Account> jdbcMapper) {
+        this.jdbcMapper = jdbcMapper;
     }
 
     @Override
     public Optional<Account> findById(long id) {
-        return (Optional<Account>) jdbcMapper.findById(id, Account.class);
+        return jdbcMapper.findById(id, Account.class);
     }
 
     @Override

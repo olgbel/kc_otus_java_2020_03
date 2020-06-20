@@ -20,17 +20,9 @@ public class DbServiceUserImpl implements DBServiceUser {
         try (var sessionManager = userDao.getSessionManager()) {
             sessionManager.beginSession();
             try {
-                final long userId;
-                Optional<User> userOptional = userDao.findById(user.getId());
-                if (userOptional.isPresent()) {
-                    userDao.updateUser(user);
-                    userId = user.getId();
-                } else {
-                    userId = userDao.insertUser(user);
-                }
+                userDao.insertOrUpdate(user);
                 sessionManager.commitSession();
-
-                return userId;
+                return user.getId();
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
                 sessionManager.rollbackSession();

@@ -4,16 +4,14 @@ import ru.otus.core.annotations.Id;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
-    Class<T> clazz;
-    Map<Class<T>, Field[]> fieldsCache = new HashMap<>();
+    private final Class<T> clazz;
+    private final Set<Field> fieldsCache = new HashSet<>();
+    private Field fieldId = null;
+    private List<Field> fieldsWithoutId = new ArrayList<>();
 
     public EntityClassMetaDataImpl(Class<T> clazz) {
         this.clazz = clazz;
@@ -36,25 +34,42 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
 
     @Override
     public Field getIdField() {
-        fieldsCache.putIfAbsent(clazz, clazz.getDeclaredFields());
-        return Stream.of(fieldsCache.get(clazz))
-                .filter(field -> field.isAnnotationPresent(Id.class))
-                .findAny()
-                .orElse(null);
+        if (fieldsCache.isEmpty()) {
+            fillFieldCache();
+        }
+
+        if (fieldId == null) {
+            fieldId = fieldsCache.stream()
+                    .filter(field -> field.isAnnotationPresent(Id.class))
+                    .findAny()
+                    .orElse(null);
+        }
+        return fieldId;
     }
 
     @Override
     public List<Field> getAllFields() {
-        fieldsCache.putIfAbsent(clazz, clazz.getDeclaredFields());
-        return List.of(fieldsCache.get(clazz));
+        if (fieldsCache.isEmpty()) {
+            fillFieldCache();
+        }
+        return new ArrayList<>(fieldsCache);
     }
 
     @Override
     public List<Field> getFieldsWithoutId() {
-        fieldsCache.putIfAbsent(clazz, clazz.getDeclaredFields());
-        return Stream.of(fieldsCache.get(clazz))
-                .filter(field -> !field.isAnnotationPresent(Id.class))
-                .sorted(Comparator.comparing(Field::getName))
-                .collect(Collectors.toList());
+        if (fieldsCache.isEmpty()) {
+            fillFieldCache();
+        }
+        if (fieldsWithoutId.isEmpty()) {
+            fieldsWithoutId = fieldsCache.stream()
+                    .filter(field -> !field.isAnnotationPresent(Id.class))
+                    .sorted(Comparator.comparing(Field::getName))
+                    .collect(Collectors.toList());
+        }
+        return fieldsWithoutId;
+    }
+
+    private void fillFieldCache() {
+        fieldsCache.addAll(Arrays.asList(clazz.getDeclaredFields()));
     }
 }
