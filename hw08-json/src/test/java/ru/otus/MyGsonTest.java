@@ -20,7 +20,6 @@ public class MyGsonTest {
     @Test
     public void testNullObject() {
         Object nullObject = null;
-
         String actualResult = myGson.toJson(nullObject);
         String expectedResult = gson.toJson(nullObject);
 
