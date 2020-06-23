@@ -128,12 +128,9 @@ public class JdbcMapperImpl<T> implements JdbcMapper<T> {
     private long getIdFieldValue(T objectData) {
         Field field;
         try {
-            field = objectData.getClass().getDeclaredField(entityClassMetaData.getIdField().getName());
+            field = entityClassMetaData.getIdField();
             field.setAccessible(true);
             return (long) field.get(objectData);
-        } catch (NoSuchFieldException e) {
-            logger.error("No id field in the class: {}", objectData.getClass());
-            e.printStackTrace();
         } catch (IllegalAccessException e) {
             logger.error("no privileges");
             e.printStackTrace();

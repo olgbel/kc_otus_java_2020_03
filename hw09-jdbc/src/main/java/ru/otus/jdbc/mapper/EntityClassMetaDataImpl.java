@@ -9,12 +9,47 @@ import java.util.stream.Collectors;
 
 public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
     private final Class<T> clazz;
-    private final Set<Field> fieldsCache = new HashSet<>();
-    private Field fieldId = null;
-    private List<Field> fieldsWithoutId = new ArrayList<>();
+    private final Set<Field> allFields = new HashSet<>();
+    private final List<Field> fieldsWithoutId = new ArrayList<>();
+    private Field fieldId;
+    private Constructor<T> constructor;
 
     public EntityClassMetaDataImpl(Class<T> clazz) {
         this.clazz = clazz;
+        fillCache();
+    }
+
+    private void fillCache() {
+        fillConstructor();
+        fillAllFields();
+        fillFieldsWithoutId();
+        fillFieldId();
+    }
+
+    private void fillConstructor() {
+        try {
+            constructor = clazz.getConstructor();
+        } catch (NoSuchMethodException e) {
+            System.out.println("Class " + clazz + " does not have constructor.");
+        }
+    }
+
+    private void fillAllFields(){
+        allFields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+    }
+
+    private void fillFieldsWithoutId() {
+        fieldsWithoutId.addAll(allFields.stream()
+                .filter(field -> !field.isAnnotationPresent(Id.class))
+                .sorted(Comparator.comparing(Field::getName))
+                .collect(Collectors.toList()));
+    }
+
+    private void fillFieldId() {
+        fieldId = allFields.stream()
+                .filter(field -> field.isAnnotationPresent(Id.class))
+                .findAny()
+                .orElse(null);
     }
 
     @Override
@@ -24,52 +59,21 @@ public class EntityClassMetaDataImpl<T> implements EntityClassMetaData<T> {
 
     @Override
     public Constructor<T> getConstructor() {
-        try {
-            return clazz.getConstructor();
-        } catch (NoSuchMethodException e) {
-            System.out.println("Class " + clazz + " does not have constructor.");
-        }
-        return null;
+        return constructor;
     }
 
     @Override
     public Field getIdField() {
-        if (fieldsCache.isEmpty()) {
-            fillFieldCache();
-        }
-
-        if (fieldId == null) {
-            fieldId = fieldsCache.stream()
-                    .filter(field -> field.isAnnotationPresent(Id.class))
-                    .findAny()
-                    .orElse(null);
-        }
         return fieldId;
     }
 
     @Override
     public List<Field> getAllFields() {
-        if (fieldsCache.isEmpty()) {
-            fillFieldCache();
-        }
-        return new ArrayList<>(fieldsCache);
+        return new ArrayList<>(allFields);
     }
 
     @Override
     public List<Field> getFieldsWithoutId() {
-        if (fieldsCache.isEmpty()) {
-            fillFieldCache();
-        }
-        if (fieldsWithoutId.isEmpty()) {
-            fieldsWithoutId = fieldsCache.stream()
-                    .filter(field -> !field.isAnnotationPresent(Id.class))
-                    .sorted(Comparator.comparing(Field::getName))
-                    .collect(Collectors.toList());
-        }
         return fieldsWithoutId;
-    }
-
-    private void fillFieldCache() {
-        fieldsCache.addAll(Arrays.asList(clazz.getDeclaredFields()));
     }
 }
