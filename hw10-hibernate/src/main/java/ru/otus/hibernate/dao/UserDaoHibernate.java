@@ -1,5 +1,6 @@
 package ru.otus.hibernate.dao;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +27,6 @@ public class UserDaoHibernate implements UserDao {
     public Optional<User> findById(long id) {
         DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
         try {
-            User user = currentSession.getHibernateSession().get(User.class, id);
-            logger.info("user: {}", user);
             return Optional.ofNullable(currentSession.getHibernateSession().find(User.class, id));
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -78,6 +77,19 @@ public class UserDaoHibernate implements UserDao {
         }
     }
 
+    @Override
+    public Optional<User> loadUser(long id) {
+        DatabaseSessionHibernate currentSession = sessionManager.getCurrentSession();
+        try {
+            User user = currentSession.getHibernateSession().find(User.class, id);
+            Hibernate.initialize(user.getPhones());
+            Hibernate.initialize(user.getAddress());
+            return Optional.of(user);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return Optional.empty();
+    }
 
     @Override
     public SessionManager getSessionManager() {

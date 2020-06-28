@@ -13,7 +13,7 @@ import ru.otus.hibernate.HibernateUtils;
 import ru.otus.hibernate.dao.UserDaoHibernate;
 import ru.otus.hibernate.sessionmanager.SessionManagerHibernate;
 
-import java.util.Optional;
+import java.util.*;
 
 public class DbServiceDemo {
     private static Logger logger = LoggerFactory.getLogger(DbServiceDemo.class);
@@ -26,13 +26,21 @@ public class DbServiceDemo {
         UserDao userDao = new UserDaoHibernate(sessionManager);
         DBServiceUser dbServiceUser = new DbServiceUserImpl(userDao);
 
+        User user = new User(0, "Vasya");
+        user.setAddress(new Address("Петроградская"));
+        Set<Phone> phones = new HashSet<>(Arrays.asList(new Phone(user, "1111111"), new Phone(user, "2222222")));
+        user.setPhones(phones);
 
-        long id = dbServiceUser.saveUser(new User(0, "Вася"));
-        Optional<User> mayBeCreatedUser = dbServiceUser.getUser(id);
+        long id = dbServiceUser.saveUser(user);
+        Optional<User> mayBeCreatedUser = dbServiceUser.loadUser(id);
 
-        id = dbServiceUser.saveUser(new User(1L, "А! Нет. Это же совсем не Вася"));
-        Optional<User> mayBeUpdatedUser = dbServiceUser.getUser(id);
+        User updatedUser = new User(1L, "А! Нет. Это же совсем не Вася");
+        updatedUser.setAddress(new Address("Василеостровская"));
+        phones = new HashSet<>(Collections.singletonList(new Phone(updatedUser, "3333333")));
+        updatedUser.setPhones(phones);
 
+        id = dbServiceUser.saveUser(updatedUser);
+        Optional<User> mayBeUpdatedUser = dbServiceUser.loadUser(id);
         outputUserOptional("Created user", mayBeCreatedUser);
         outputUserOptional("Updated user", mayBeUpdatedUser);
     }
@@ -40,6 +48,10 @@ public class DbServiceDemo {
     private static void outputUserOptional(String header, Optional<User> mayBeUser) {
         System.out.println("-----------------------------------------------------------");
         System.out.println(header);
-        mayBeUser.ifPresentOrElse(System.out::println, () -> logger.info("User not found"));
+        mayBeUser.ifPresentOrElse(user -> {
+            System.out.println(user);
+            System.out.println("phones: " + user.getPhones());
+            System.out.println("address: " + user.getAddress());
+        }, () -> logger.info("User not found"));
     }
 }

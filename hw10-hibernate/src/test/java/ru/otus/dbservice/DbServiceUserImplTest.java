@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.otus.core.dao.UserDao;
 import ru.otus.core.model.User;
@@ -91,6 +90,5 @@ class DbServiceUserImplTest {
         given(userDao.findById(USER_ID)).willReturn(Optional.of(expectedUser));
         Optional<User> mayBeUser = dbServiceUser.getUser(USER_ID);
         assertThat(mayBeUser).isPresent().get().isEqualToComparingFieldByField(expectedUser);
-
     }
 }

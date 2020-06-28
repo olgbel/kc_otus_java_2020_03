@@ -34,9 +34,9 @@ public class WithAbstractionsTest extends AbstractHibernateTest {
     void shouldCorrectSaveUser() {
         User savedUser = buildDefaultUser();
         long id = dbServiceUser.saveUser(savedUser);
-        User loadedUser = loadUser(id);
+        Optional<User> loadedUser = dbServiceUser.loadUser(id);
 
-        assertThat(loadedUser).isNotNull().isEqualToComparingFieldByField(savedUser);
+        assertThat(loadedUser).isPresent().get().isEqualToComparingFieldByField(savedUser);
 
         System.out.println(savedUser);
         System.out.println(loadedUser);
@@ -48,7 +48,7 @@ public class WithAbstractionsTest extends AbstractHibernateTest {
         User savedUser = buildDefaultUser();
         saveUser(savedUser);
 
-        Optional<User> mayBeUser = dbServiceUser.getUser(savedUser.getId());
+        Optional<User> mayBeUser = dbServiceUser.loadUser(savedUser.getId());
 
         assertThat(mayBeUser).isPresent().get().isEqualToComparingFieldByField(savedUser);
 
@@ -64,13 +64,12 @@ public class WithAbstractionsTest extends AbstractHibernateTest {
 
         User savedUser2 = new User(savedUser.getId(), TEST_USER_NEW_NAME);
         long id = dbServiceUser.saveUser(savedUser2);
-        User loadedUser = loadUser(id);
+        Optional<User> loadedUser = dbServiceUser.loadUser(id);
 
-        assertThat(loadedUser).isNotNull().isEqualToComparingFieldByField(savedUser2);
+        assertThat(loadedUser).isPresent().get().isEqualToComparingFieldByField(savedUser2);
 
         System.out.println(savedUser);
         System.out.println(savedUser2);
         System.out.println(loadedUser);
     }
-
 }

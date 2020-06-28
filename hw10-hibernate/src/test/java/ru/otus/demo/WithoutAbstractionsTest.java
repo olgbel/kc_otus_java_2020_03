@@ -234,7 +234,7 @@ public class WithoutAbstractionsTest extends AbstractHibernateTest {
             User loadedUser = loadUser(id);
 
             // Проверка, что второй раз сохраненный пользователь имеет тот же id
-            assertThat(loadedUser).isEqualToComparingFieldByField(savedUser);
+            assertThat(loadedUser).hasFieldOrPropertyWithValue("id", savedUser.getId());
         }
     }
 

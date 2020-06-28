@@ -1,7 +1,5 @@
 package ru.otus.core.model;
 
-import org.hibernate.annotations.Proxy;
-
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
@@ -19,11 +17,11 @@ public class User {
     @Column(name = "name")
     private String name;
 
-    @OneToOne(targetEntity = Address.class, cascade = CascadeType.ALL)
+    @OneToOne(targetEntity = Address.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     private Address address;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user", orphanRemoval=true)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user", orphanRemoval = true)
     private Set<Phone> phones = new HashSet<>();
 
     public User() {
@@ -71,14 +69,12 @@ public class User {
         return "User{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", address='" + address + '\'' +
-                ", phones='" + phones + '\'' +
                 '}';
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, address, phones);
+        return Objects.hash(id, name);
     }
 
     @Override
@@ -91,8 +87,6 @@ public class User {
 
         User objB = (User) obj;
         return this.id == objB.id &&
-                this.name.equals(objB.name) &&
-                this.address == objB.address &&
-                Objects.equals(phones, objB.phones);
+                this.name.equals(objB.name);
     }
 }

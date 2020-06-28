@@ -33,8 +33,9 @@ public class UserDaoHibernateTest extends AbstractHibernateTest {
         assertThat(expectedUser.getId()).isGreaterThan(0);
 
         sessionManagerHibernate.beginSession();
-        Optional<User> mayBeUser = userDaoHibernate.findById(expectedUser.getId());
+        Optional<User> mayBeUser = userDaoHibernate.loadUser(expectedUser.getId());
         sessionManagerHibernate.commitSession();
+
         assertThat(mayBeUser).isPresent().get().isEqualToComparingFieldByField(expectedUser);
     }
 
@@ -48,7 +49,7 @@ public class UserDaoHibernateTest extends AbstractHibernateTest {
         assertThat(expectedUser.getId()).isGreaterThan(0);
 
         sessionManagerHibernate.beginSession();
-        Optional<User> mayBeUser = userDaoHibernate.findById(expectedUser.getId());
+        Optional<User> mayBeUser = userDaoHibernate.loadUser(expectedUser.getId());
         sessionManagerHibernate.commitSession();
 
         assertThat(mayBeUser).isPresent().get().isEqualToComparingFieldByField(expectedUser);
@@ -64,7 +65,7 @@ public class UserDaoHibernateTest extends AbstractHibernateTest {
         assertThat(expectedUser.getId()).isGreaterThan(0);
 
         sessionManagerHibernate.beginSession();
-        Optional<User> mayBeUser = userDaoHibernate.findById(expectedUser.getId());
+        Optional<User> mayBeUser = userDaoHibernate.loadUser(expectedUser.getId());
         sessionManagerHibernate.commitSession();
 
         assertThat(mayBeUser).isPresent().get().isEqualToComparingFieldByField(expectedUser);
@@ -72,11 +73,11 @@ public class UserDaoHibernateTest extends AbstractHibernateTest {
 
     @Test
     void shouldCorrectSaveUser() {
-        Address address = new Address("Горьковская");
         User expectedUser = new User(0, "Вася");
-        expectedUser.setAddress(address);
+        expectedUser.setAddress(new Address("Горьковская"));
         Set<Phone> phones = new HashSet<>(Arrays.asList(new Phone(expectedUser, "1111111"), new Phone(expectedUser, "2222222")));
         expectedUser.setPhones(phones);
+
         sessionManagerHibernate.beginSession();
         userDaoHibernate.insertOrUpdate(expectedUser);
         long id = expectedUser.getId();
@@ -84,20 +85,28 @@ public class UserDaoHibernateTest extends AbstractHibernateTest {
 
         assertThat(id).isGreaterThan(0);
 
-        User actualUser = loadUser(id);
-        assertThat(actualUser).isNotNull().isEqualToComparingFieldByField(expectedUser);
+        sessionManagerHibernate.beginSession();
+        Optional<User> actualUser = userDaoHibernate.loadUser(id);
+        sessionManagerHibernate.commitSession();
+
+        assertThat(actualUser).isPresent().get().isEqualToComparingFieldByField(expectedUser);
 
         expectedUser = new User(id, "Не Вася");
         expectedUser.setAddress(new Address("Не Горьковская"));
         expectedUser.setPhones(new HashSet<>(Collections.singletonList(new Phone(expectedUser, "3333333"))));
+
         sessionManagerHibernate.beginSession();
         userDaoHibernate.insertOrUpdate(expectedUser);
         long newId = expectedUser.getId();
         sessionManagerHibernate.commitSession();
 
         assertThat(newId).isGreaterThan(0).isEqualTo(id);
-        actualUser = loadUser(newId);
-        assertThat(actualUser).isNotNull().isEqualToComparingFieldByField(expectedUser);
+
+        sessionManagerHibernate.beginSession();
+        actualUser = userDaoHibernate.loadUser(newId);
+        sessionManagerHibernate.commitSession();
+
+        assertThat(actualUser).isPresent().get().isEqualToComparingFieldByField(expectedUser);
     }
 
     @Test

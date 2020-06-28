@@ -1,5 +1,6 @@
 package ru.otus.core.service;
 
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.core.dao.UserDao;
@@ -51,6 +52,20 @@ public class DbServiceUserImpl implements DBServiceUser {
                 sessionManager.rollbackSession();
             }
             return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<User> loadUser(long id) {
+        try (SessionManager sessionManager = userDao.getSessionManager()) {
+            sessionManager.beginSession();
+            try {
+                return userDao.loadUser(id);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+                sessionManager.rollbackSession();
+                throw new DbServiceException(e);
+            }
         }
     }
 }
