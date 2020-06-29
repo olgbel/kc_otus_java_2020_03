@@ -37,7 +37,6 @@ public class DbServiceUserImpl implements DBServiceUser {
         }
     }
 
-
     @Override
     public Optional<User> getUser(long id) {
         try (SessionManager sessionManager = userDao.getSessionManager()) {
@@ -56,11 +55,16 @@ public class DbServiceUserImpl implements DBServiceUser {
     }
 
     @Override
-    public Optional<User> loadUser(long id) {
+    public Optional<User> loadUserWithLazyParams(long id) {
         try (SessionManager sessionManager = userDao.getSessionManager()) {
             sessionManager.beginSession();
             try {
-                return userDao.loadUser(id);
+                Optional<User> user = userDao.findById(id);
+                user.ifPresent(u -> {
+                    Hibernate.initialize(u.getPhones());
+                    Hibernate.initialize(u.getAddress());
+                });
+                return user;
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
                 sessionManager.rollbackSession();

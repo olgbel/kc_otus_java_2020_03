@@ -1,5 +1,6 @@
 package ru.otus.jdbc.dao;
 
+import org.hibernate.Hibernate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.otus.AbstractHibernateTest;
@@ -33,7 +34,11 @@ public class UserDaoHibernateTest extends AbstractHibernateTest {
         assertThat(expectedUser.getId()).isGreaterThan(0);
 
         sessionManagerHibernate.beginSession();
-        Optional<User> mayBeUser = userDaoHibernate.loadUser(expectedUser.getId());
+        Optional<User> mayBeUser = userDaoHibernate.findById(expectedUser.getId());
+        mayBeUser.ifPresent(u -> {
+            Hibernate.initialize(u.getAddress());
+            Hibernate.initialize(u.getPhones());
+        });
         sessionManagerHibernate.commitSession();
 
         assertThat(mayBeUser).isPresent().get().isEqualToComparingFieldByField(expectedUser);
@@ -49,7 +54,11 @@ public class UserDaoHibernateTest extends AbstractHibernateTest {
         assertThat(expectedUser.getId()).isGreaterThan(0);
 
         sessionManagerHibernate.beginSession();
-        Optional<User> mayBeUser = userDaoHibernate.loadUser(expectedUser.getId());
+        Optional<User> mayBeUser = userDaoHibernate.findById(expectedUser.getId());
+        mayBeUser.ifPresent(u -> {
+            Hibernate.initialize(u.getAddress());
+            Hibernate.initialize(u.getPhones());
+        });
         sessionManagerHibernate.commitSession();
 
         assertThat(mayBeUser).isPresent().get().isEqualToComparingFieldByField(expectedUser);
@@ -65,7 +74,11 @@ public class UserDaoHibernateTest extends AbstractHibernateTest {
         assertThat(expectedUser.getId()).isGreaterThan(0);
 
         sessionManagerHibernate.beginSession();
-        Optional<User> mayBeUser = userDaoHibernate.loadUser(expectedUser.getId());
+        Optional<User> mayBeUser = userDaoHibernate.findById(expectedUser.getId());
+        mayBeUser.ifPresent(u -> {
+            Hibernate.initialize(u.getAddress());
+            Hibernate.initialize(u.getPhones());
+        });
         sessionManagerHibernate.commitSession();
 
         assertThat(mayBeUser).isPresent().get().isEqualToComparingFieldByField(expectedUser);
@@ -86,7 +99,11 @@ public class UserDaoHibernateTest extends AbstractHibernateTest {
         assertThat(id).isGreaterThan(0);
 
         sessionManagerHibernate.beginSession();
-        Optional<User> actualUser = userDaoHibernate.loadUser(id);
+        Optional<User> actualUser = userDaoHibernate.findById(id);
+        actualUser.ifPresent(u -> {
+            Hibernate.initialize(u.getAddress());
+            Hibernate.initialize(u.getPhones());
+        });
         sessionManagerHibernate.commitSession();
 
         assertThat(actualUser).isPresent().get().isEqualToComparingFieldByField(expectedUser);
@@ -103,7 +120,11 @@ public class UserDaoHibernateTest extends AbstractHibernateTest {
         assertThat(newId).isGreaterThan(0).isEqualTo(id);
 
         sessionManagerHibernate.beginSession();
-        actualUser = userDaoHibernate.loadUser(newId);
+        actualUser = userDaoHibernate.findById(newId);
+        actualUser.ifPresent(u -> {
+            Hibernate.initialize(u.getAddress());
+            Hibernate.initialize(u.getPhones());
+        });
         sessionManagerHibernate.commitSession();
 
         assertThat(actualUser).isPresent().get().isEqualToComparingFieldByField(expectedUser);

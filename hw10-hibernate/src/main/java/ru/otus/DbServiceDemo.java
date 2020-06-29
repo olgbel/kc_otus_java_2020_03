@@ -32,7 +32,7 @@ public class DbServiceDemo {
         user.setPhones(phones);
 
         long id = dbServiceUser.saveUser(user);
-        Optional<User> mayBeCreatedUser = dbServiceUser.loadUser(id);
+        Optional<User> mayBeCreatedUser = dbServiceUser.loadUserWithLazyParams(id);
 
         User updatedUser = new User(1L, "А! Нет. Это же совсем не Вася");
         updatedUser.setAddress(new Address("Василеостровская"));
@@ -40,7 +40,7 @@ public class DbServiceDemo {
         updatedUser.setPhones(phones);
 
         id = dbServiceUser.saveUser(updatedUser);
-        Optional<User> mayBeUpdatedUser = dbServiceUser.loadUser(id);
+        Optional<User> mayBeUpdatedUser = dbServiceUser.loadUserWithLazyParams(id);
         outputUserOptional("Created user", mayBeCreatedUser);
         outputUserOptional("Updated user", mayBeUpdatedUser);
     }

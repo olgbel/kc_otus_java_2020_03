@@ -14,7 +14,5 @@ public interface UserDao {
 
     void insertOrUpdate(User user);
 
-    Optional<User> loadUser(long id);
-
     SessionManager getSessionManager();
 }
