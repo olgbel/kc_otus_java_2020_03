@@ -1,8 +1,12 @@
 package ru.otus.cachehw;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 public class MyCache<K, V> implements HwCache<K, V> {
+    private static final Logger logger = LoggerFactory.getLogger(MyCache.class);
     private final Map<K, V> cache = new WeakHashMap<>();
     private final List<HwListener<K, V>> listeners = new ArrayList<>();
 
@@ -36,7 +40,14 @@ public class MyCache<K, V> implements HwCache<K, V> {
     }
 
     private void notifyListeners(K key, V value, ActionType actionType) {
-        listeners.forEach(listener -> listener.notify(key, value, actionType.getType()));
+        listeners.forEach(listener -> {
+            try {
+                listener.notify(key, value, actionType.getType());
+            } catch (Exception e) {
+                logger.error("Exception during listener notifying: {}", e.getMessage());
+                throw new HwListenerNotifyException(e);
+            }
+        });
     }
 
     @Override
