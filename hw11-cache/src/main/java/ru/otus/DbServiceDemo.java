@@ -2,6 +2,7 @@ package ru.otus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.otus.cachehw.MyCache;
 import ru.otus.core.model.User;
 import ru.otus.core.service.CachedDbServiceUserImpl;
 import ru.otus.core.service.DbServiceUserImpl;
@@ -56,7 +57,8 @@ public class DbServiceDemo {
     }
 
     private static void testUserWithCache(UserDaoJdbc userDao) {
-        var dbServiceUser = new CachedDbServiceUserImpl(userDao);
+        MyCache<String, User> myCache = new MyCache<>();
+        var dbServiceUser = new CachedDbServiceUserImpl(userDao, myCache);
         var id = dbServiceUser.saveUser(new User(3, "dbServiceUserCACHED"));
         Optional<User> user = dbServiceUser.getUser(id);
 

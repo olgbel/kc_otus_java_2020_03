@@ -3,7 +3,6 @@ package ru.otus.core.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.cachehw.HwCache;
-import ru.otus.cachehw.MyCache;
 import ru.otus.core.dao.UserDao;
 import ru.otus.core.model.User;
 
@@ -13,9 +12,9 @@ public class CachedDbServiceUserImpl extends DbServiceUserImpl {
     private static final Logger logger = LoggerFactory.getLogger(CachedDbServiceUserImpl.class);
     private final HwCache<String, User> cache;
 
-    public CachedDbServiceUserImpl(UserDao userDao) {
+    public CachedDbServiceUserImpl(UserDao userDao, HwCache<String, User> cache) {
         super(userDao);
-        this.cache = new MyCache<>();
+        this.cache = cache;
     }
 
     @Override
