@@ -45,7 +45,6 @@ public class MyCache<K, V> implements HwCache<K, V> {
                 listener.notify(key, value, actionType.getType());
             } catch (Exception e) {
                 logger.error("Exception during listener notifying: {}", e.getMessage());
-                throw new HwListenerNotifyException(e);
             }
         });
     }
