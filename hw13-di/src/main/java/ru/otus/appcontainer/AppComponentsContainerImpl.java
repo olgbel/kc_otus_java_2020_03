@@ -10,12 +10,13 @@ import ru.otus.appcontainer.api.AppComponentsContainerConfig;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AppComponentsContainerImpl implements AppComponentsContainer {
-    private final List<Object> appComponents = new ArrayList<>();
+    private final Logger logger = LoggerFactory.getLogger(AppComponentsContainerImpl.class);
+
     private final Map<String, Object> appComponentsByName = new HashMap<>();
+    private final Map<Class<?>, Object> appComponentsByType = new HashMap<>();
 
     public AppComponentsContainerImpl(Class<?> initialConfigClass) {
         processConfig(initialConfigClass);
@@ -47,45 +48,38 @@ public class AppComponentsContainerImpl implements AppComponentsContainer {
     }
 
     private void createBeans(Class<?> configClass) {
-        Set<Method> methods = Stream.of(configClass.getMethods())
+        Stream.of(configClass.getMethods())
                 .filter(method -> method.isAnnotationPresent(AppComponent.class))
-                .collect(Collectors.toSet());
-        for (Method method : methods) {
-            List<Object> args = fillArgs(method);
-            createBean(method, args.toArray(), configClass);
-        }
+                .sorted(Comparator.comparingInt(config -> config.getAnnotation(AppComponent.class).order()))
+                .forEach(method -> {
+                    List<Object> args = fillArgs(method);
+                    createBean(method, args.toArray(), configClass);
+                });
     }
 
     private List<Object> fillArgs(Method method) {
         Class<?>[] methodParameters = method.getParameterTypes();
         List<Object> args = new ArrayList<>();
-        for (Class<?> parameter : methodParameters) {
-            for (Object appComponent : appComponents) {
-                if (parameter.isInstance(appComponent)) {
-                    args.add((parameter).cast(appComponent));
-                }
-            }
-        }
+        Stream.of(methodParameters)
+                .forEach(parameter -> args.add(appComponentsByType.get(parameter)));
         return args;
     }
 
     private void createBean(Method method, Object[] args, Class<?> configClass) {
         try {
-            Object bean = method.invoke(configClass.getConstructors()[0].newInstance(), args);
-            appComponents.add(bean);
+            Object bean = method.invoke(configClass.getConstructor().newInstance(), args);
             appComponentsByName.put(method.getAnnotation(AppComponent.class).name(), bean);
-        } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            appComponentsByType.put(bean.getClass(), bean);
+            Stream.of(bean.getClass().getInterfaces())
+                    .forEach(beanInterface -> appComponentsByType.put(beanInterface, bean));
+        } catch (IllegalAccessException | InvocationTargetException | InstantiationException | NoSuchMethodException e) {
             e.printStackTrace();
         }
     }
 
     @Override
     public <C> C getAppComponent(Class<C> componentClass) {
-        return (C) appComponents.stream()
-                .filter(componentClass::isInstance)
-                .map(componentClass::cast)
-                .findFirst()
-                .orElse(null);
+        return (C) appComponentsByType.get(componentClass);
     }
 
     @Override
