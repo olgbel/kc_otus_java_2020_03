@@ -5,15 +5,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.otus.core.model.User;
-import ru.otus.core.service.CachedDbServiceUserImpl;
+import ru.otus.core.service.DBServiceUser;
 
 import java.util.List;
 
 @Controller
 public class UserController {
-    private final CachedDbServiceUserImpl userService;
+    private final DBServiceUser userService;
 
-    public UserController(CachedDbServiceUserImpl userService) {
+    public UserController(DBServiceUser userService) {
         this.userService = userService;
     }
 

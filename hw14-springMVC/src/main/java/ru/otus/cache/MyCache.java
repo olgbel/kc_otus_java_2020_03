@@ -2,14 +2,12 @@ package ru.otus.cache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-@Component
 public class MyCache<K, V> implements HwCache<K, V> {
     private static final Logger logger = LoggerFactory.getLogger(MyCache.class);
     private final Map<K, V> cache = new WeakHashMap<>();
