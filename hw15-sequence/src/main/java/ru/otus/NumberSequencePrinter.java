@@ -1,50 +1,59 @@
 package ru.otus;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class NumberSequencePrinter {
-    private final Thread thread1;
-    private final Thread thread2;
+    private static final String FIRST_THREAD_NAME = "Thread#1";
+    private static final String SECOND_THREAD_NAME = "Thread#2";
 
-    private final AtomicInteger counter1 = new AtomicInteger(1);
-    private final AtomicInteger counter2 = new AtomicInteger(1);
+    private static int counter1 = 1;
+    private static int counter2 = 1;
+
+    private boolean lock1 = false;
+    private boolean lock2 = false;
 
     private boolean ascending_order = true;
 
-    public NumberSequencePrinter() {
-        thread1 = new Thread(() -> print(counter1), "Thread#1");
-        thread2 = new Thread(() -> print(counter2), "Thread#2");
+    public static void main(String[] args) {
+        NumberSequencePrinter numberSequencePrinter = new NumberSequencePrinter();
+        new Thread(() -> numberSequencePrinter.print(counter1), FIRST_THREAD_NAME).start();
+        new Thread(() -> numberSequencePrinter.print(counter2), SECOND_THREAD_NAME).start();
     }
 
-    public void print() {
-        thread1.start();
-        thread2.start();
-    }
-
-    private synchronized void print(AtomicInteger counter) {
+    private synchronized void print(int counter) {
+        String currentThreadName = Thread.currentThread().getName();
         while (true) {
-            if (counter1.get() == 11 && counter2.get() == 11) {
-                counter1.set(9);
-                counter2.set(9);
-                ascending_order = false;
-            }
-
-            if (counter.get() == 1) {
-                ascending_order = true;
-            }
-
-            int currentNumber = ascending_order ? counter.getAndIncrement() : counter.getAndDecrement();
-            System.out.println(Thread.currentThread().getName() + ": " + currentNumber);
-
-            if (Thread.State.WAITING.equals(thread1.getState()) || Thread.State.WAITING.equals(thread2.getState())) {
-                notifyAll();
-            }
-
             try {
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                while ((FIRST_THREAD_NAME.equals(currentThreadName) && lock1) ||
+                        (SECOND_THREAD_NAME.equals(currentThreadName) && lock2)) {
+                    this.wait();
+                }
+
+                if (counter == 10) {
+                    counter1 = 9;
+                    counter2 = 9;
+                    ascending_order = false;
+                }
+
+                if (counter == 1) {
+                    ascending_order = true;
+                }
+
+                int currentNumber = ascending_order ? counter++ : counter--;
+                System.out.println(currentThreadName + ": " + currentNumber);
+
+                lock1 = FIRST_THREAD_NAME.equals(currentThreadName);
+                lock2 = SECOND_THREAD_NAME.equals(currentThreadName);
+
+                notifyAll();
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                throw new NotInterestingException(ex);
             }
+        }
+    }
+
+    private static class NotInterestingException extends RuntimeException {
+        NotInterestingException(InterruptedException ex) {
+            super(ex);
         }
     }
 }
