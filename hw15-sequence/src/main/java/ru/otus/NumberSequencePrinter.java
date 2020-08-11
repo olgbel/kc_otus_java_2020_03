@@ -23,7 +23,8 @@ public class NumberSequencePrinter {
         while (true) {
             try {
                 while ((FIRST_THREAD_NAME.equals(currentThreadName) && lock1) ||
-                        (SECOND_THREAD_NAME.equals(currentThreadName) && lock2)) {
+                        (SECOND_THREAD_NAME.equals(currentThreadName) && lock2) ||
+                        (SECOND_THREAD_NAME.equals(currentThreadName) && !lock1)) {
                     this.wait();
                 }
 
